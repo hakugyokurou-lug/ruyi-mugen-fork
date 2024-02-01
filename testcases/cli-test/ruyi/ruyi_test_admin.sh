@@ -11,9 +11,9 @@
 # #############################################
 # @Author    :   weilinfox
 # @Contact   :   caiweilin@iscas.ac.cn
-# @Date      :   2023/11/28
+# @Date      :   2023/11/30
 # @License   :   Mulan PSL v2
-# @Desc      :   ruyisdk device test
+# @Desc      :   ruyisdk admin test
 # #############################################
 
 source "./common/common_lib.sh"
@@ -27,30 +27,9 @@ function pre_test() {
 function run_test() {
     LOG_INFO "Start to run test."
 
-    ruyi update
-    expect >/dev/null <<EOF
-        set timeout 10
-        spawn ./ruyi device provision
-        set i 0
-        while {\$i < 10} {
-            expect {
-                "Continue? \(y/N\)" {
-                    send "y\r"
-                }
-                "Choice? \(1-" {
-                    send "1\r"
-                }
-                "Proceed? \(y/N\)" {
-                    send "n\r"
-                }
-                eof {
-                    catch wait result
-                    exit [lindex \$result 3]
-                }
-            }
-        }
-EOF
-    CHECK_RESULT $? 0 1 "Check ruyi device provision failed"
+    test_file=ruyi_test_admin.sh
+    ruyi admin manifest $test_file
+    CHECK_RESULT $? 0 0 "Check ruyi admin manifest failed"
 
     LOG_INFO "End of the test."
 }
