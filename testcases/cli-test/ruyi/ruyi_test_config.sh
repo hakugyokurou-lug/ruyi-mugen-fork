@@ -8,13 +8,13 @@
 # MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 # See the Mulan PSL v2 for more detaitest -f.
 
-# #############################################
+# #########################################
 # @Author    :   weilinfox
 # @Contact   :   caiweilin@iscas.ac.cn
-# @Date      :   2023/11/28
+# @Date      :   2024/03/05
 # @License   :   Mulan PSL v2
-# @Desc      :   ruyisdk news test
-# #############################################
+# @Desc      :   ruyisdk config file test
+# #########################################
 
 source "./common/common_lib.sh"
 
@@ -27,15 +27,39 @@ function pre_test() {
 function run_test() {
     LOG_INFO "Start to run test."
 
+    cfg_d=`get_ruyi_config_dir`
+    cfg_f="$cfg_d"/config.toml
+    cc_dir=`get_ruyi_dir`/packages-index
+    cc_td=/tmp/ruyi_config_test
+
+    [ ! -d "$cfg_d" ] && mkdir -p $cfg_d
+    [ -d "$cc_td" ] && rm -rf "$cc_td"
+
+    cat >"$cfg_f" <<EOF
+[repo]
+local = "$cc_td"
+EOF
     ruyi update
-    ruyi news read | grep "#"
-    CHECK_RESULT $? 0 0 "Check ruyi news read failed"
-    ruyi news read | grep "No news to display."
-    CHECK_RESULT $? 0 0 "Check ruyi news read empty failed"
-    ruyi news read 1 | grep "#"
-    CHECK_RESULT $? 0 0 "Check ruyi news read 1 failed"
-    ruyi news list | grep "News items"
-    CHECK_RESULT $? 0 0 "Check ruyi news list failed"
+    CHECK_RESULT $? 0 0 "Check ruyi update failed"
+    [ -d "$cc_td" ]
+    CHECK_RESULT $? 0 0 "Check ruyi local failed"
+    [ -d "$cc_dir" ]
+    CHECK_RESULT $? 0 1 "Check ruyi orig local failed"
+    rm -rf "$cc_td"
+
+    wr=wrong_magic
+    cat >"$cfg_f" <<EOF
+[repo]
+remote = "https://$wr"
+EOF
+    ruyi update 2>&1 | grep "$wr"
+    CHECK_RESULT $? 0 0 "Check ruyi remote failed"
+    cat >"$cfg_f" <<EOF
+[repo]
+branch = "$wr"
+EOF
+    ruyi update 2>&1 | grep "$wr"
+    CHECK_RESULT $? 0 0 "Check ruyi branch failed"
 
     LOG_INFO "End of the test."
 }

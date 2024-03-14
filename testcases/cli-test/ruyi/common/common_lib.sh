@@ -20,19 +20,25 @@ source "${OET_PATH}"/libs/locallibs/common_lib.sh
 
 get_ruyi_dir() {
 	ruyibase=$XDG_CACHE_HOME
-	[ "$ruyibase" == "" ] && ruyibase=~/.cache/
+	[ -z "$ruyibase" ] && ruyibase=~/.cache/
 	echo "$ruyibase"/ruyi
 }
 
 get_ruyi_data_dir() {
 	ruyibase=$XDG_DATA_HOME
-	[ "$ruyibase" == "" ] && ruyibase=~/.local/share
+	[ -z "$ruyibase" ] && ruyibase=~/.local/share
 	echo "$ruyibase"/ruyi
 }
 
 get_ruyi_state_dir() {
 	ruyibase=$XDG_STATE_HOME
-	[ "$ruyibase" == "" ] && ruyibase=~/.local/state
+	[ -z "$ruyibase" ] && ruyibase=~/.local/state
+	echo "$ruyibase"/ruyi
+}
+
+get_ruyi_config_dir() {
+	ruyibase=$XDG_CONFIG_HOME
+	[ -z "$ruyibase" ] && ruyibase=~/.config
 	echo "$ruyibase"/ruyi
 }
 
@@ -63,11 +69,11 @@ remove_src_ruyi() {
 }
 
 remove_ruyi_data() {
-	rm -rf $(get_ruyi_dir) $(get_ruyi_data_dir) $(get_ruyi_state_dir)
+	rm -rf $(get_ruyi_dir) $(get_ruyi_data_dir) $(get_ruyi_state_dir) $(get_ruyi_config_dir)
 }
 
 install_release_ruyi() {
-	version="0.5.0"
+	version="0.6.0"
 	arch='amd64'
 	larch="$(uname -m)"
 	if [ "$larch"  == "riscv64" ]; then arch='riscv64'; fi
@@ -76,7 +82,7 @@ install_release_ruyi() {
 }
 
 install_github_release_ruyi() {
-	version="0.5.0-beta.20240224"
+	version="0.6.0-beta.20240307"
 	arch='amd64'
 	larch="$(uname -m)"
 	if [ "$larch"  == "riscv64" ]; then arch='riscv64'; fi
