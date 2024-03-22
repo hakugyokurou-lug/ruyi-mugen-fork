@@ -6,11 +6,17 @@ RuyiSDK mugen 测试分支
 
 测试平台：
 
++ x86\_64 Debian 12
 + x86\_64 Fedora 38
 + x86\_64 Ubuntu 22.04 LTS
 + x86\_64 openEuler 23.09
-+ riscv64 container RevyOS 20231210
++ x86\_64 Archlinux
++ riscv64 Debian sid
++ riscv64 Fedora 38
++ riscv64 Ubuntu 22.04 LTS
++ riscv64 RevyOS 20231210
 + riscv64 openEuler 23.09
++ riscv64 Archlinux
 
 ## 对上游 mugen 的更改
 
@@ -19,6 +25,7 @@ RuyiSDK mugen 测试分支
 ```bash
 DNF_INSTALL git
 APT_INSTALL git
+PACMAN_INSTALL git
 ```
 
 由于软件包名称可能不同，两个函数都需要调用
@@ -31,7 +38,7 @@ PKG_REMOVE
 
 不需要任何参数
 
-注意，这样的设计假定了你的发行版中没有同时存在 ``dnf`` 和 ``apt-get``
+注意，这样的设计假定了你的发行版中 ``dnf``、 ``apt-get``、 ``pacman`` 三种包管理只存在一种
 
 ## mugen介绍
 mugen是openEuler社区开放的测试框架，提供公共配置和方法以便社区开发者进行测试代码的编写和执行
