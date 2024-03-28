@@ -7,6 +7,7 @@ DISTROMAP = [
     'fedora38-riscv64': ['label': 'fedora38 && riscv64'],
     'revyos-riscv64': ['label': 'revyos && riscv64'],
     'debian12-x86_64': ['label': 'debian12 && x86_64'],
+    'debian12-aarch64': ['label': 'debian12 && aarch64'],
     'debiansid-riscv64': ['label': 'debiansid && riscv64'],
     'archlinux-x86_64': ['label': 'archlinux && x86_64'],
     'archlinux-riscv64': ['label': 'archlinux && riscv64']
@@ -36,7 +37,8 @@ def mugen_install () {
 }
 
 def mugen_run () {
-    sh 'sudo bash mugen.sh -f ruyi -x || echo Mugen test failed'
+    sh 'sudo bash mugen.sh -f ruyi -x 2>&1 | tee report_gen_tmpl/26test_log.md'
+    sh "bash report_gen.sh ${DIRSTO}"
     sh 'sudo chown -R $USER:$USER ./* ./.*'
     sh 'sudo bash dep_install.sh -j'
 
@@ -72,7 +74,7 @@ pipeline {
                 axes {
                     axis {
                         name "DIRSTO"
-                        values "oE2309-x86_64", "ubuntu2204-x86_64", "ubuntu2204-riscv64", "fedora38-x86_64", "fedora38-riscv64", "revyos-riscv64", 'oE2309-riscv64', 'debian12-x86_64', 'debiansid-riscv64', 'archlinux-x86_64', 'archlinux-riscv64'
+                        values "oE2309-x86_64", "ubuntu2204-x86_64", "ubuntu2204-riscv64", "fedora38-x86_64", "fedora38-riscv64", "revyos-riscv64", 'oE2309-riscv64', 'debian12-x86_64', 'debian12-aarch64', 'debiansid-riscv64', 'archlinux-x86_64', 'archlinux-riscv64'
                     }
                 }
                 
@@ -82,15 +84,17 @@ pipeline {
                             echo "Start mugen test on ${DIRSTO}"
                             mugen_install()
                             mugen_run()
-                            sh "mv ruyi-test-logs.tar.gz ruyi-test-${DIRSTO}-logs.tar.gz"
-                            sh "mv ruyi-test-logs_failed.tar.gz ruyi-test-${DIRSTO}-logs_failed.tar.gz"
+                            sh "mkdir test-artifacts"
+                            sh "mv ruyi-test-logs.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs.tar.gz"
+                            sh "mv ruyi-test-logs_failed.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs_failed.tar.gz"
+                            sh "mv ruyi_report/*.md test-artifacts"
                         }
                     }
                 }
                 
                 post {
                     always {
-                        archiveArtifacts artifacts: "ruyi-test-*.tar.gz"
+                        archiveArtifacts artifacts: "test-artifacts/*.*"
                         cleanWs()
                     }
                 }
