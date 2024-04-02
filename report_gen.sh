@@ -19,6 +19,7 @@ OET_PATH=$(
     cd "$(dirname "$0")" || exit 1
     pwd
 )
+RUN_PATH=$(pwd)
 
 source ${OET_PATH}/testcases/cli-test/ruyi/common/common_lib.sh
 
@@ -108,4 +109,30 @@ sed -i "s/{{ruyi_timeout}}/$ruyi_timeout/g" $report_dir/my
 sed -i "s/{{log_name}}/$log_name/g" $report_dir/my
 
 mv -v $report_dir/my $report_dir/$report_name.md
+
+# format test logs name
+for f in $(find "${OET_PATH}"/logs -type f); do
+	mv "$f" "$(echo "$f" | sed "s/:/_/g")"
+done
+
+[ -d "${OET_PATH}/${log_name}" ] && rm -rf "${OET_PATH}/${log_name}"
+mkdir "${OET_PATH}/${log_name}"
+cp -r "${OET_PATH}"/logs/* "${OET_PATH}/${log_name}/"
+
+# get failed logs
+mkdir "${OET_PATH}/logs_failed"
+cd "${OET_PATH}"
+for f in $(find ./logs -type f); do
+	if grep " - ERROR - failed to execute the case." "$f"; then
+		NEW_FILE="$(echo "$f" | sed "s/logs/logs_failed/")"
+		mkdir -p "$(dirname $NEW_FILE)"
+		mv -v "$f" "$NEW_FILE"
+	fi
+done
+rmdir --ignore-fail-on-non-empty ./logs_failed
+
+# pack all logs
+[ -d ./logs_failed ] && mv logs_failed "${log_name}"_failed && tar zcvf ruyi-test-logs_failed.tar.gz ./"${log_name}"_failed || touch ruyi-test-logs_failed.tar.gz
+tar zcvf ruyi-test-logs.tar.gz ./"${log_name}"
+cd $RUN_PATH
 
