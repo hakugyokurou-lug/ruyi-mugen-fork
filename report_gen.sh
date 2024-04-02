@@ -36,6 +36,20 @@ report_name_js='{
 "archlinux-x86_64":	"RUYI_包管理_Container_Archlinux_x86_64_测试结果",
 "archlinux-riscv64":	"RUYI_包管理_Container_Archlinux_riscv64_测试结果"
 }'
+log_name_js='{
+"revyos-riscv64":	"revyos_riscv64_container",
+"debian12-x86_64":	"debian12-x86_64-qemu",
+"debian12-aarch64":	"debian12-aarch64-qemu",
+"debiansid-riscv64":	"debiansid_riscv64_container",
+"ubuntu2204-x86_64":	"ubuntu2204-x86_64-qemu",
+"ubuntu2204-riscv64":	"ubuntu2204-riscv64-qemu",
+"fedora38-x86_64":	"fedora38-x86_64-qemu",
+"fedora38-riscv64":	"fedora38-riscv64-qemu",
+"oE2309-x86_64":	"oE2309-x86_64-qemu",
+"oE2309-riscv64":	"oE2309-riscv64-qemu",
+"archlinux-x86_64":	"archlinux_x86_64_container",
+"archlinux-riscv64":	"archlinux_riscv64_container"
+}'
 ruyitest_repo="https://gitee.com/yunxiangluo/ruyisdk-test/tree/master/20240312"
 ruyitest_repo_raw="https://gitee.com/yunxiangluo/ruyisdk-test/raw/master/20240312"
 
@@ -43,6 +57,7 @@ tmpl_dir=${OET_PATH}/report_gen_tmpl
 temp_dir=/tmp/ruyi_report
 report_dir=${OET_PATH}/ruyi_report
 report_name=`echo $report_name_js | jq -r .\"$1\"`
+log_name=`echo $log_name_js | jq -r .\"$1\"`
 
 [ -z "$report_name" ] && {
 	echo Unsupported distro
@@ -90,6 +105,7 @@ sed -i "s/{{ruyi_conclusion}}/$ruyi_conclusion/g" $report_dir/my
 sed -i "s/{{ruyi_success}}/$ruyi_success/g" $report_dir/my
 sed -i "s/{{ruyi_failed}}/$ruyi_failed/g" $report_dir/my
 sed -i "s/{{ruyi_timeout}}/$ruyi_timeout/g" $report_dir/my
+sed -i "s/{{log_name}}/$log_name/g" $report_dir/my
 
 mv -v $report_dir/my $report_dir/$report_name.md
 
