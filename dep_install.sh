@@ -25,15 +25,15 @@ usage() {
 }
 
 common_dep(){
-    apt-get update && apt-get install -y jq expect psmisc iputils-ping make python3-paramiko python3-six || echo Not apt distro
-    dnf install jq expect psmisc make iputils python3-six python3-paramiko -y || echo Not rpm distro
-    pacman --noconfirm -Syuu && pacman --need --noconfirm -S jq expect psmisc make iputils python-six python-paramiko || echo Not archlinux distro
+    apt-get update && apt-get install -y expect psmisc iputils-ping make python3-paramiko python3-six || echo Not apt distro
+    dnf install expect psmisc make iputils python3-six python3-paramiko -y || echo Not rpm distro
+    pacman --noconfirm -Syuu && pacman --need --noconfirm -S expect psmisc make iputils python-six python-paramiko || echo Not archlinux distro
 }
 
 jenkins_dep() {
-    apt-get install -y tar || echo Not apt distro
-    dnf install -y tar || echo Not rpm distro
-    pacman --need --noconfirm -S tar || echo Not archlinux distro
+    apt-get install -y tar jq || echo Not apt distro
+    dnf install -y tar jq || echo Not rpm distro
+    pacman --need --noconfirm -S tar jq || echo Not archlinux distro
 }
 
 qemu_dep(){

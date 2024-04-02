@@ -19,6 +19,7 @@ OET_PATH=$(
     cd "$(dirname "$0")" || exit 1
     pwd
 )
+RUN_PATH=$(pwd)
 
 source ${OET_PATH}/testcases/cli-test/ruyi/common/common_lib.sh
 
@@ -36,12 +37,28 @@ report_name_js='{
 "archlinux-x86_64":	"RUYI_包管理_Container_Archlinux_x86_64_测试结果",
 "archlinux-riscv64":	"RUYI_包管理_Container_Archlinux_riscv64_测试结果"
 }'
+log_name_js='{
+"revyos-riscv64":	"revyos_riscv64_container",
+"debian12-x86_64":	"debian12-x86_64-qemu",
+"debian12-aarch64":	"debian12-aarch64-qemu",
+"debiansid-riscv64":	"debiansid_riscv64_container",
+"ubuntu2204-x86_64":	"ubuntu2204-x86_64-qemu",
+"ubuntu2204-riscv64":	"ubuntu2204-riscv64-qemu",
+"fedora38-x86_64":	"fedora38-x86_64-qemu",
+"fedora38-riscv64":	"fedora38-riscv64-qemu",
+"oE2309-x86_64":	"oE2309-x86_64-qemu",
+"oE2309-riscv64":	"oE2309-riscv64-qemu",
+"archlinux-x86_64":	"archlinux_x86_64_container",
+"archlinux-riscv64":	"archlinux_riscv64_container"
+}'
 ruyitest_repo="https://gitee.com/yunxiangluo/ruyisdk-test/tree/master/20240312"
+ruyitest_repo_raw="https://gitee.com/yunxiangluo/ruyisdk-test/raw/master/20240312"
 
 tmpl_dir=${OET_PATH}/report_gen_tmpl
 temp_dir=/tmp/ruyi_report
 report_dir=${OET_PATH}/ruyi_report
 report_name=`echo $report_name_js | jq -r .\"$1\"`
+log_name=`echo $log_name_js | jq -r .\"$1\"`
 
 [ -z "$report_name" ] && {
 	echo Unsupported distro
@@ -82,12 +99,40 @@ sed -i "s/{{ruyi_arch}}/$arch/g" $report_dir/my
 sed -i "s/{{ruyi_version}}/$version/g" $report_dir/my
 sed -i "s|{{ruyi_link}}|$ruyi_link|g" $report_dir/my
 sed -i "s|{{ruyitest_repo}}|$ruyitest_repo|g" $report_dir/my
+sed -i "s|{{ruyitest_repo_raw}}|$ruyitest_repo_raw|g" $report_dir/my
 sed -i "s/{{ruyi_testsuites}}/$ruyi_testsuites/g" $report_dir/my
 sed -i "s/{{ruyi_testcases}}/$ruyi_testcases/g" $report_dir/my
 sed -i "s/{{ruyi_conclusion}}/$ruyi_conclusion/g" $report_dir/my
 sed -i "s/{{ruyi_success}}/$ruyi_success/g" $report_dir/my
 sed -i "s/{{ruyi_failed}}/$ruyi_failed/g" $report_dir/my
 sed -i "s/{{ruyi_timeout}}/$ruyi_timeout/g" $report_dir/my
+sed -i "s/{{log_name}}/$log_name/g" $report_dir/my
 
 mv -v $report_dir/my $report_dir/$report_name.md
+
+# format test logs name
+for f in $(find "${OET_PATH}"/logs -type f); do
+	mv "$f" "$(echo "$f" | sed "s/:/_/g")"
+done
+
+[ -d "${OET_PATH}/${log_name}" ] && rm -rf "${OET_PATH}/${log_name}"
+mkdir "${OET_PATH}/${log_name}"
+cp -r "${OET_PATH}"/logs/* "${OET_PATH}/${OET_PATH}/"
+
+# get failed logs
+mkdir "${OET_PATH}/logs_failed"
+cd "${OET_PATH}"
+for f in $(find ./logs -type f); do
+	if grep " - ERROR - failed to execute the case." "$f"; then
+		NEW_FILE="$(echo "$f" | sed "s/logs/logs_failed/")"
+		mkdir -p "$(dirname $NEW_FILE)"
+		mv -v "$f" "$NEW_FILE"
+	fi
+done
+rmdir --ignore-fail-on-non-empty ./logs_failed
+
+# pack all logs
+[ -d ./logs_failed ] && mv logs_failed "${log_name}"_failed && tar zcvf ruyi-test-logs_failed.tar.gz ./"${log_name}"_failed || touch ruyi-test-logs_failed.tar.gz
+tar zcvf ruyi-test-logs.tar.gz ./"${log_name}"
+cd $RUN_PATH
 
