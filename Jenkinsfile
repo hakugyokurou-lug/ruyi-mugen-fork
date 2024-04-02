@@ -38,26 +38,16 @@ def mugen_install () {
 
 def mugen_run () {
     sh 'sudo bash mugen.sh -f ruyi -x 2>&1 | tee report_gen_tmpl/26test_log.md'
-    sh "bash report_gen.sh ${DIRSTO}"
     sh 'sudo chown -R $USER:$USER ./* ./.*'
+}
+
+def mugen_report() {
     sh 'sudo bash dep_install.sh -j'
-
-    sh 'for f in $(find ./logs -type f); do mv "$f" "$(echo "$f" | sed "s/:/_/g")"; done'
-    sh "tar zcvf ruyi-test-logs.tar.gz ./logs"
-
-    // get failed logs
-    sh 'mkdir ./logs_failed'
-    sh '''
-    for f in $(find ./logs -type f); do
-        if grep " - ERROR - failed to execute the case." "$f"; then
-            NEW_FILE="$(echo "$f" | sed "s/logs/logs_failed/")"
-            mkdir -p "$(dirname $NEW_FILE)"
-            mv "$f" "$NEW_FILE"
-        fi
-    done
-    rmdir --ignore-fail-on-non-empty ./logs_failed
-    '''
-    sh "[ -d ./logs_failed ] && tar zcvf ruyi-test-logs_failed.tar.gz ./logs_failed || touch ruyi-test-logs_failed.tar.gz"
+    sh "bash report_gen.sh ${DIRSTO}"
+    sh "mkdir test-artifacts"
+    sh "mv ruyi-test-logs.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs.tar.gz"
+    sh "mv ruyi-test-logs_failed.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs_failed.tar.gz"
+    sh "mv ruyi_report/*.md test-artifacts"
 }
 
 pipeline {
@@ -84,10 +74,7 @@ pipeline {
                             echo "Start mugen test on ${DIRSTO}"
                             mugen_install()
                             mugen_run()
-                            sh "mkdir test-artifacts"
-                            sh "mv ruyi-test-logs.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs.tar.gz"
-                            sh "mv ruyi-test-logs_failed.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs_failed.tar.gz"
-                            sh "mv ruyi_report/*.md test-artifacts"
+                            mugen_report()
                         }
                     }
                 }
