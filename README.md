@@ -21,6 +21,8 @@ RuyiSDK mugen 测试分支
 
 ## 对上游 mugen 的更改
 
+使用 ruyi-mugen 测试时，应当使用普通用户运行，且该普通用户应当可以 NOPASSWD 调用 sudo 提权。
+
 在测试用例中显示安装软件包示例如下
 
 ```bash
