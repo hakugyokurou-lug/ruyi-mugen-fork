@@ -17,7 +17,7 @@
 # #############################################
 
 source "${OET_PATH}"/libs/locallibs/common_lib.sh
-export RUYI_FORCE_ALLOW_ROOT=x
+# export RUYI_FORCE_ALLOW_ROOT=x
 
 get_ruyi_dir() {
 	ruyibase=$XDG_CACHE_HOME
@@ -116,7 +116,7 @@ install_ruyi() {
 	ruyi_curl ruyi $ruyi_link
 
 	chmod +x ruyi
-	ln -s $(realpath ruyi) /usr/bin/ruyi
+	sudo ln -s $(realpath ruyi) /usr/bin/ruyi
 	# remove_ruyi_data
 }
 
@@ -126,7 +126,7 @@ remove_ruyi() {
 	remove_ruyi_data
 
 	rm -f ruyi
-	rm -f /usr/bin/ruyi
+	sudo rm -f /usr/bin/ruyi
 	export RUYI_DEBUG=
 }
 
