@@ -17,6 +17,7 @@
 # #############################################
 
 source "${OET_PATH}"/libs/locallibs/common_lib.sh
+export RUYI_FORCE_ALLOW_ROOT=x
 
 get_ruyi_dir() {
 	ruyibase=$XDG_CACHE_HOME
