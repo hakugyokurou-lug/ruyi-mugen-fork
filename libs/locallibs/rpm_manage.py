@@ -76,20 +76,20 @@ def rpm_install(pkgs, node=1, tmpfile=""):
         mugen_log.logging("info", "unsupported package manager: dnf")
         return 0, None
 
-    result = func(conn=conn, cmd="dnf --assumeno install " + pkgs)[1]
+    result = func(conn=conn, cmd="sudo dnf --assumeno install " + pkgs)[1]
     if "is already installed" in result and "Nothing to do" in result:
         mugen_log.logging("info", "pkgs:(%s) is already installed" % pkgs)
         return 0, None
 
     repoCode, repoList = func(
         conn=conn,
-        cmd="dnf repolist | awk '{print $NF}' | sed -e '1d;:a;N;$!ba;s/\\n/ /g'",
+        cmd="sudo dnf repolist | awk '{print $NF}' | sed -e '1d;:a;N;$!ba;s/\\n/ /g'",
     )
     if repoCode != 0:
         return repoCode, repoList
     upCode, upList = func(
         conn=conn,
-        cmd="dnf --assumeno install "
+        cmd="sudo dnf --assumeno install "
         + pkgs
         + " 2>&1| grep -A 1000 \"Upgrading:\" | grep update | grep -wE \"$(uname -m)|noarch\"|awk '{print $1}'|xargs",
     )
@@ -98,7 +98,7 @@ def rpm_install(pkgs, node=1, tmpfile=""):
     if len(upList) == 0:
         depCode, depList = func(
             conn=conn,
-            cmd="dnf --assumeno install "
+            cmd="sudo dnf --assumeno install "
             + pkgs
             + ' 2>&1 | grep -wE "$(echo '
             + repoList
@@ -107,7 +107,7 @@ def rpm_install(pkgs, node=1, tmpfile=""):
     else:
         depCode, depList = func(
             conn=conn,
-            cmd="dnf --assumeno install "
+            cmd="sudo dnf --assumeno install "
             + pkgs
             + ' 2>&1 | grep -wE "$(echo '
             + repoList
@@ -118,7 +118,7 @@ def rpm_install(pkgs, node=1, tmpfile=""):
     if depCode != 0:
         return depCode, depList
 
-    exitcode, result = func(conn=conn, cmd="dnf -y install " + pkgs)
+    exitcode, result = func(conn=conn, cmd="sudo dnf -y install " + pkgs)
 
     if tmpfile == "":
         tmpfile = tempfile.mkstemp(dir="/tmp")[1]
@@ -173,7 +173,7 @@ def rpm_remove(node=1, pkgs="", tmpfile=""):
         with open(tmpfile, "r") as f:
             depList = f.read()
 
-    exitcode = func(conn=conn, cmd="dnf -y remove " + pkgs + " " + depList)[0]
+    exitcode = func(conn=conn, cmd="sudo dnf -y remove " + pkgs + " " + depList)[0]
     if localtion != "local":
         ssh_cmd.pssh_close(conn)
     return exitcode

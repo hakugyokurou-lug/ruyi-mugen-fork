@@ -25,25 +25,25 @@ usage() {
 }
 
 common_dep(){
-    apt-get update && apt-get install -y expect psmisc iputils-ping make python3-paramiko python3-six || echo Not apt distro
-    dnf install expect psmisc make iputils python3-six python3-paramiko -y || echo Not rpm distro
-    pacman --noconfirm -Syuu && pacman --need --noconfirm -S expect psmisc make iputils python-six python-paramiko || echo Not archlinux distro
+    sudo apt-get update && sudo apt-get install -y sudo expect psmisc iputils-ping make python3-paramiko python3-six || echo Not apt distro
+    sudo dnf install sudo expect psmisc make iputils python3-six python3-paramiko -y || echo Not rpm distro
+    sudo pacman --noconfirm -Syuu && sudo pacman --need --noconfirm -S sudo expect psmisc make iputils python-six python-paramiko || echo Not archlinux distro
 }
 
 jenkins_dep() {
-    apt-get install -y tar jq || echo Not apt distro
-    dnf install -y tar jq || echo Not rpm distro
-    pacman --need --noconfirm -S tar jq || echo Not archlinux distro
+    sudo apt-get install -y tar jq || echo Not apt distro
+    sudo dnf install -y tar jq || echo Not rpm distro
+    sudo pacman --need --noconfirm -S tar jq || echo Not archlinux distro
 }
 
 qemu_dep(){
     echo "install qemu"
-    yum install bridge-utils -y
+    sudo yum install bridge-utils -y
     qemu-system-aarch64 --version && qemu-system-arm --version
     if [ $? -eq 0 ]; then
         return 0
     fi
-    yum install qemu-system-aarch64 qemu-system-arm -y
+    sudo yum install qemu-system-aarch64 qemu-system-arm -y
     if [ $? -ne 0 ]; then
         echo "ERROR: qemu not install, you need install it youself."
         return 1

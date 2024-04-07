@@ -15,7 +15,7 @@ DISTROMAP = [
 
 def mugen_install () {
     
-    sh 'sudo bash dep_install.sh'
+    sh 'bash dep_install.sh'
     
     sh 'mkdir conf'
     sh '''
@@ -37,12 +37,12 @@ def mugen_install () {
 }
 
 def mugen_run () {
-    sh 'sudo bash mugen.sh -f ruyi -x 2>&1 | tee report_gen_tmpl/26test_log.md'
+    sh 'bash mugen.sh -f ruyi -x 2>&1 | tee report_gen_tmpl/26test_log.md'
     sh 'sudo chown -R $USER:$USER ./* ./.*'
 }
 
 def mugen_report() {
-    sh 'sudo bash dep_install.sh -j'
+    sh 'bash dep_install.sh -j'
     sh "bash report_gen.sh ${DIRSTO}"
     sh "mkdir test-artifacts"
     sh "mv ruyi-test-logs.tar.gz test-artifacts/ruyi-test-${DIRSTO}-logs.tar.gz"

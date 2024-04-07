@@ -78,12 +78,12 @@ def archpkg_install(pkgs, node=1, tmpfile=""):
 
     repoCode, repoList = func(
         conn=conn,
-        cmd="pacman --noconfirm -Syuu",
+        cmd="sudo pacman --noconfirm -Syuu",
     )
     if repoCode != 0:
         return repoCode, repoList
 
-    repoCode, result = func(conn=conn, cmd="pacman --need --noconfirm -Sw " +
+    repoCode, result = func(conn=conn, cmd="sudo pacman --need --noconfirm -Sw " +
                                            pkgs)
     # repoCode: 0 skip/download, 1 target not found
     if repoCode != 0:
@@ -91,7 +91,7 @@ def archpkg_install(pkgs, node=1, tmpfile=""):
 
     repoCode, result = func(
         conn=conn,
-        cmd="pacman --need --noconfirm -Sw "
+        cmd="sudo pacman --need --noconfirm -Sw "
         + pkgs
         + ' 2>&1 | grep -E "^ there is nothing to do$"'
     )
@@ -105,7 +105,7 @@ def archpkg_install(pkgs, node=1, tmpfile=""):
     if repoCode != 0:
         return repoCode, depList
 
-    exitcode, result = func(conn=conn, cmd="pacman --need --noconfirm -S " + pkgs)
+    exitcode, result = func(conn=conn, cmd="sudo pacman --need --noconfirm -S " + pkgs)
     exitcode, depList = func(conn=conn, cmd='grep -FA 1000 "' + depList.split("\n")[0] +
                                             '" /var/log/pacman.log | ' + 
                                             'grep -F "[ALPM] installed" |' +
@@ -164,7 +164,7 @@ def archpkg_remove(pkgs="", node=1, tmpfile=""):
         with open(tmpfile, "r") as f:
             depList = f.read()
 
-    exitcode = func(conn=conn, cmd="pacman --noconfirm -R " + pkgs + " " + depList)[0]
+    exitcode = func(conn=conn, cmd="sudo pacman --noconfirm -R " + pkgs + " " + depList)[0]
     if localtion != "local":
         ssh_cmd.pssh_close(conn)
     return exitcode

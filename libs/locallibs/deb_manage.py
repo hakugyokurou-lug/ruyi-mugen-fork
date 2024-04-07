@@ -76,7 +76,7 @@ def deb_install(pkgs, node=1, tmpfile=""):
         mugen_log.logging("info", "unsupported package manager: apt-get")
         return 0, None
 
-    repoCode, result = func(conn=conn, cmd="apt-get --simulate --no-show-upgraded --no-install-recommends install " +
+    repoCode, result = func(conn=conn, cmd="sudo apt-get --simulate --no-show-upgraded --no-install-recommends install " +
                                            pkgs)
     # repoCode: 0 already the newest version, 1 something can be done but N, 100 no such package
     if repoCode != 0:
@@ -84,14 +84,14 @@ def deb_install(pkgs, node=1, tmpfile=""):
 
     repoCode, repoList = func(
         conn=conn,
-        cmd="apt-get update",
+        cmd="sudo apt-get update",
     )
     if repoCode != 0:
         return repoCode, repoList
 
     depCode, depList = func(
         conn=conn,
-        cmd="apt-get --simulate --no-show-upgraded --no-install-recommends install "
+        cmd="sudo apt-get --simulate --no-show-upgraded --no-install-recommends install "
         + pkgs
         + ' 2>&1 | grep -iA 1000 "NEW packages will be installed" | grep -E "^  "'
     )
@@ -99,7 +99,7 @@ def deb_install(pkgs, node=1, tmpfile=""):
         mugen_log.logging("info", "pkgs:(%s) is already installed" % pkgs)
         return 0, None
 
-    exitcode, result = func(conn=conn, cmd="apt-get --assume-yes --no-install-recommends install " + pkgs)
+    exitcode, result = func(conn=conn, cmd="sudo apt-get --assume-yes --no-install-recommends install " + pkgs)
 
     if tmpfile == "":
         tmpfile = tempfile.mkstemp(dir="/tmp")[1]
@@ -154,7 +154,7 @@ def deb_remove(pkgs="", node=1, tmpfile=""):
         with open(tmpfile, "r") as f:
             depList = f.read()
 
-    exitcode = func(conn=conn, cmd="apt-get -y remove " + pkgs + " " + depList)[0]
+    exitcode = func(conn=conn, cmd="sudo apt-get -y remove " + pkgs + " " + depList)[0]
     if localtion != "local":
         ssh_cmd.pssh_close(conn)
     return exitcode
